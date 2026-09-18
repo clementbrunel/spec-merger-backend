@@ -1,0 +1,80 @@
+spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5434/specmerger}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  ai:
+    mistralai:
+      api-key: ${MISTRAL_API_KEY:}
+      chat:
+        base-url: ${MISTRAL_BASE_URL:https://mistral.invalid}
+        options:
+          model: ${MISTRAL_MODEL:unset}
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+
+gitlab:
+  url: ${GITLAB_URL:}
+  token: ${GITLAB_TOKEN:}
+  # Langue utilisée pour résoudre les clés trans(...) du JXML à partir des fichiers de
+  # traduction sélectionnés (.properties/.xlf) — voir #285. Code à 2 lettres, censé
+  # correspondre au nom fixe d'un fichier .properties (ex. "fr.properties") ou à l'attribut
+  # source-language/target-language d'un fichier .xlf.
+  translation-language: ${GITLAB_TRANSLATION_LANGUAGE:fr}
+  # Groupes GitLab contenant des projets JWAY à traiter. Chaque groupe a sa propre
+  # convention de fichiers de traduction (noms de fichiers fixes .properties dans un
+  # groupe, fichiers .xlf dans l'autre) — "key" identifie le groupe côté API/frontend
+  # pour retrouver son filtre au moment du téléchargement des sources d'un projet.
+  groups:
+    - key: ${GITLAB_GROUP_1_KEY:properties}
+      # Chemin complet du groupe/sous-groupe ("mon-groupe/mon-sous-groupe") de préférence,
+      # ou ID numérique si le nom n'est pas stable.
+      path: ${GITLAB_GROUP_1_PATH:}
+      translation-patterns: ${GITLAB_GROUP_1_TRANSLATION_PATTERNS:**/de.properties,**/en.properties,**/fr.properties}
+      # Patterns Ant des classes Java d'appels métier vers l'extérieur à inclure.
+      # Vide par défaut : aucune classe Java n'est envoyée tant que ce n'est pas configuré.
+      java-patterns: ${GITLAB_GROUP_1_JAVA_PATTERNS:}
+    - key: ${GITLAB_GROUP_2_KEY:xlf}
+      path: ${GITLAB_GROUP_2_PATH:}
+      translation-patterns: ${GITLAB_GROUP_2_TRANSLATION_PATTERNS:**/*.xlf}
+      java-patterns: ${GITLAB_GROUP_2_JAVA_PATTERNS:}
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+logging:
+  level:
+    com.specmerger: INFO
+    # DEBUG pour voir le détail de chaque appel GitLab (identifiants résolus,
+    # branche par défaut, taille de l'arborescence) en plus des erreurs contextualisées.
+    com.specmerger.service.gitlab: DEBUG

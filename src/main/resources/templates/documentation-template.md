@@ -1,0 +1,201 @@
+# Gabarit de documentation fonctionnelle
+
+> **Usage** : ce gabarit définit la forme que doit **toujours** prendre la documentation
+> produite par l'IA, que la source soit un document Word/PowerPoint/Excel ou le code
+> JXML d'un projet. En imposant les mêmes titres, le même découpage et les mêmes
+> colonnes de tableau des deux côtés, un même écran documenté depuis la spec et depuis
+> le code produit deux markdown structurellement comparables, ce qui rend le diff entre
+> les deux versions exploitable (par section, par écran, par élément).
+>
+> Règles à respecter par l'IA lors de la génération :
+> - **Un seul gabarit pour les deux sources** : produis-le dans son intégralité et dans
+>   le même ordre, que tu génères depuis le Word/PowerPoint/Excel ou depuis le JXML —
+>   même quand tu sais par avance qu'une source donnée ne pourra pas remplir telle ou
+>   telle section (ex. les « Généralités » depuis un JXML seul). Ce n'est jamais un
+>   prétexte pour sauter une section ou une ligne de tableau : elle est conservée avec
+>   `_Non renseigné dans la source._` (ou une valeur vide dans un tableau). C'est cette
+>   parité structurelle — pas le contenu — qui permet ensuite de comparer les deux
+>   générations section par section, écran par écran, élément par élément.
+> - Reprendre exactement les titres de section ci-dessous (même niveau de titre, même
+>   libellé). Ne pas ajouter de section qui n'existe pas ici.
+> - Chaque élément documenté (champ, bouton, pièce jointe, appel de service, …) est
+>   identifié par **son libellé tel qu'affiché à l'utilisateur** (le texte du `<Label>`
+>   côté JXML, la colonne « Élément » côté Word) — jamais un identifiant technique ou un
+>   numéro de position en guise de libellé. Le même libellé des deux côtés est ce qui
+>   permet au diff de rapprocher un champ Word et son équivalent JXML sans clé technique
+>   commune.
+>   - **Depuis le JXML** : le libellé vient de la résolution des clés `trans(...)`.
+>     Tant que cette résolution n'est pas branchée (issue #285), laisse l'appel
+>     `trans(...)` tel quel — comme demandé plus bas pour le JXML — et il sert alors
+>     d'identifiant brut, provisoirement pas comparable au libellé français du Word.
+>     C'est une limite connue et temporaire, à ne pas contourner en inventant une
+>     traduction.
+>   - Deux éléments peuvent légitimement partager le même libellé sur un même écran
+>     (ex. un bloc « Représentant » répété) : ne pas inventer de suffixe pour les
+>     distinguer — le rapprochement se fait alors par section/tableau, pas par libellé
+>     seul.
+> - Juste après la colonne du libellé, le tableau des éléments porte une colonne `ID` :
+>   le nom technique du champ tel que défini dans l'assistant JWAY (l'attribut `Name`
+>   du contrôle JXML, ex. `Name="Nom"`) — jamais le libellé, jamais une clé `trans(...)`.
+>   Cette colonne est nécessaire pour donner un sens aux règles de gestion, conditions
+>   d'affichage et expressions qui référencent un champ par son nom technique (ex.
+>   `VARIABLE_X=1`, `$(data|VARIABLE_X)`) : sans elle, rien ne permet de savoir à quel
+>   élément du tableau — potentiellement juste à côté — `VARIABLE_X` correspond. Depuis
+>   un Word qui n'expose pas ce nom technique, laisser la cellule vide plutôt que
+>   d'inventer une valeur.
+> - Aucune référence visuelle (maquette, capture d'écran, schéma) : le gabarit reste
+>   intégralement textuel — toute mise en page, tout enchaînement ou toute navigation se
+>   décrit en mots.
+> - Aucune notion propre à une plateforme ou un back-office particulier ne doit
+>   apparaître : les intitulés ci-dessous sont volontairement génériques (« système
+>   cible », « canal », « écran ») à charge pour le contenu généré de rester neutre.
+> - Les valeurs entre chevrons (`<comme ceci>`) sont des placeholders à remplacer par
+>   le contenu réel ; s'ils ne peuvent pas être renseignés, les laisser tels quels
+>   plutôt que d'inventer une valeur.
+> - Dans une cellule de tableau, échappe tout caractère `|` en `\|` — en particulier
+>   dans les valeurs/conditions JWAY telles que `$(data|demandePersonnelle)=='NON'`,
+>   dont la profondeur (et donc le nombre de `|`) varie — sous peine de casser la
+>   structure du tableau markdown. Ne change rien d'autre à la valeur (pas de
+>   reformulation, pas de suppression des `|`).
+
+---
+
+## 1. En-tête du document
+
+| Champ | Valeur |
+|---|---|
+| Identifiant / référence du projet | `<id-projet>` |
+| Fonctionnalité / démarche / formulaire documenté(e) | `<titre du formulaire principal choisi>` |
+
+### Historique des versions
+
+| Version | Date | Auteur | Modifications effectuées |
+|---|---|---|---|
+| `<x.y>` | `<jj/mm/aaaa>` | `<auteur>` | `<description>` |
+
+> Généré depuis le JXML/texte source seul : une seule ligne, avec la date de
+> génération et `Génération automatique depuis la source` en modification — Version et
+> Auteur laissés vides. Généré depuis un Word qui contient déjà un historique : le
+> reprendre tel quel plutôt que de le remplacer.
+
+## 2. Généralités
+
+| Caractéristique | Valeur |
+|---|---|
+| Code / identifiant fonctionnel | `<code>` |
+| Nom | `<nom>` |
+| Canal(-aux) / espace(s) concerné(s) | `<canal>` |
+| Mode d'authentification requis | `<mode>` |
+| Visibilité (catalogue, moteur de recherche, etc.) | `<oui/non>` |
+| Catégorie / thème | `<thème>` |
+| Langues de saisie | `<langues>` |
+
+## 3. Arbre de navigation
+
+Description textuelle de l'enchaînement des sections et écrans, et des règles de
+navigation :
+- Ordre de parcours des écrans/sections.
+- Conditions d'accès à une section/un écran, si certaines sont conditionnelles.
+- Comportement en cas de retour en arrière (les écrans suivants doivent-ils être
+  reparcourus, les données déjà saisies sont-elles conservées, etc.).
+
+## 4. Contenu — détail par section et par écran
+
+> Répéter ce gabarit pour chaque section, puis pour chaque écran de la section.
+> Une section est un niveau de regroupement au-dessus de l'écran : elle est composée
+> d'un ou plusieurs écrans. Son titre porte la navigation de niveau 1 — côté JWAY, c'est
+> l'attribut `ShortTitle` de la section. Un écran correspond à une nouvelle page
+> présentée à l'utilisateur ; son propre titre porte la navigation de niveau 2.
+
+### 4.1. Section : `<titre de navigation niveau 1 — ShortTitle JWAY>`
+
+#### 4.1.1. Conditions d'affichage
+
+`<condition dans laquelle la section est proposée ; sinon, omettre uniquement cette
+sous-section>`
+
+#### 4.1.2. Écran : `<titre de navigation niveau 2>`
+
+##### Conditions d'affichage
+
+`<condition dans laquelle l'écran est proposé ; sinon, omettre uniquement cette
+sous-section>`
+
+##### Éléments
+
+> Colonne `Élément` : cf. règle d'identification par libellé en tête de document (le
+> libellé de l'élément, pas une clé technique) — c'est cette même valeur qui sert de
+> référence dans les sous-sections ci-dessous. Colonne `ID` : cf. règle sur le nom
+> technique du champ en tête de document — c'est cette valeur qui apparaît dans les
+> conditions et règles de gestion référencées plus bas (ex. `VARIABLE_X=1`).
+
+| Élément | ID | Type : nature, format, taille, contrôle | Valeur par défaut | Condition d'affichage | Obligatoire |
+|---|---|---|---|---|---|
+| `<label>` | `<id>` | `<type>` | `<valeur>` | `<condition>` | `<oui/non>` |
+
+##### Règles de gestion, aides et messages d'erreur
+
+> Uniquement les règles/aides/erreurs propres à cet écran. Omettre cette sous-section
+> si elle est vide.
+
+| Référence (élément) | Type (règle de gestion / aide / erreur) | Description |
+|---|---|---|
+| `<label>` | `<type>` | `<description>` |
+
+##### Pièces jointes
+
+> Une ligne par pièce jointe attendue sur cet écran. Omettre cette sous-section si
+> l'écran n'en comporte aucune.
+
+| Libellé | Obligatoire | Types de fichiers acceptés | Taille max (par fichier) | Nombre max | Condition d'affichage | Contrôles appliqués |
+|---|---|---|---|---|---|---|
+| `<libellé>` | `<oui/non>` | `<extensions/mime-types>` | `<taille>` | `<nombre>` | `<condition>` | `<antivirus / format / lisibilité / …>` |
+
+##### Appels de service web
+
+> Un bloc par appel de service externe déclenché depuis cet écran (vérification,
+> enrichissement de données, pré-remplissage, notification, …). Omettre cette
+> sous-section si l'écran n'en déclenche aucun.
+
+###### `<nom du service>`
+
+| Champ | Valeur |
+|---|---|
+| Déclencheur | `<élément de cet écran ou condition qui déclenche l'appel>` |
+| Méthode HTTP | `<GET / POST / PUT / …>` |
+| Endpoint | `<url ou référence de configuration ; ne pas figer une URL d'environnement>` |
+| Authentification | `<mécanisme (aucune, basic, jeton, mutuel TLS, …)>` |
+| Synchrone / asynchrone | `<synchrone bloquant / asynchrone>` |
+| Délai d'attente (timeout) | `<valeur>` |
+| Comportement en cas d'échec ou de dépassement de délai | `<message affiché, blocage ou poursuite de la saisie, nombre de tentatives>` |
+
+**Données envoyées**
+
+| Champ envoyé | Origine (élément de cet écran) |
+|---|---|
+| `<champ>` | `<libellé de l'élément source>` |
+
+**Données reçues et mapping**
+
+| Champ reçu | Élément/donnée alimenté(e) |
+|---|---|
+| `<champ>` | `<libellé de l'élément ou donnée cible>` |
+
+**Gestion des erreurs**
+
+| Code / cas d'erreur | Comportement |
+|---|---|
+| `<code ou cas>` | `<message affiché / action>` |
+
+## 5. Méta-données échangées
+
+> Cette section ne se déduit pas du JXML : elle vient de ce que la spec Word déclare
+> explicitement comme échangé avec le système cible, information qui n'existe nulle
+> part dans le code. Généré depuis le JXML seul, ne tente pas de la déduire ou de
+> l'inventer à partir des champs du formulaire : laisse la section avec `_Non renseigné
+> dans la source._` comme le reste de ce qu'une source ne peut pas remplir. Seule la
+> génération depuis le Word peut renseigner ce tableau.
+
+| Code | Libellé | Donnée source | Sens (saisie → système cible / système cible → saisie) |
+|---|---|---|---|
+| `<code>` | `<libellé>` | `<origine>` | `<sens>` |
